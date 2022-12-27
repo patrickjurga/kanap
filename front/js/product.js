@@ -1,3 +1,43 @@
+/* let params = new URL(document.location).searchParams;
+let id = params.get("id");
+
+let product = function () {
+
+// récupération back-end des produits
+fetch('http://localhost:3000/api/products')
+  .then(response => response.json())
+  .then(data => {
+    // pour chaque item dans le data
+    data.forEach(item => {
+
+        //si l'id du lien correspond a l'id du produit
+        if (id == item._id) {
+
+        document.querySelector(".item__img").innerHTML = `<img src="${item.imageUrl}" alt="${item.altTxt}"/>`;
+
+        document.getElementById("title").innerHTML = `${item.name}`;
+
+        document.getElementById("price").innerHTML = `${item.price}`;
+        
+        document.getElementById("description").innerHTML = `${item.description}`;
+
+        // pour chaque couleurs dans le tableau colors on affiche la couleur dans le html
+        item.colors.forEach(color => {
+
+          document.getElementById("colors").innerHTML += `<option value="${color}">${color}</option>`;
+          
+        });
+
+      }       
+
+    });
+  })
+
+}
+
+// appel de la fonction
+product(); */
+
 const params = new URL(document.location).searchParams;
 const id = params.get("id");
 
@@ -8,8 +48,6 @@ const titleTarget = document.getElementById("title");
 const priceTarget = document.getElementById("price");
 const descriptionTarget = document.getElementById("description");
 const colorsTarget = document.getElementById("colors");
-const addToCartButton = document.getElementById("addToCart");
-
 
 
 (async function() {
@@ -34,46 +72,24 @@ const addToCartButton = document.getElementById("addToCart");
 
   }); 
   
-  /*
-  addToCartButton.addEventListener("click", async function() {
+  const addToCartButton = document.getElementById("addToCart");
 
-    const selectedColor = document.querySelector("#colors option:checked").value;
+  addToCartButton.addEventListener("click", () => {
+    // Get the selected color value from the colors select element
+    const selectedColor = document.getElementById("colors").value;
 
-    const data = {
-      name: getKanap.name,
-      price: getKanap.price,
-      imageUrl: getKanap.imageUrl,
-      altTxt: getKanap.altTxt,
-      color: selectedColor
+    // Store the data in local storage
+    localStorage.setItem("name", getKanap.name);
+    localStorage.setItem("price", getKanap.price);
+    localStorage.setItem("imageUrl", getKanap.imageUrl);
+    localStorage.setItem("altTxt", getKanap.altTxt);
+    localStorage.setItem("color", selectedColor);
 
-    };
-
-    const response = await fetch("http://127.0.0.1:5500/front/html/cart.html", {
-
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Accept": "application/json", 
-        "Content-Type": "application/json"
-      }
-
-    });
-
-    if (response.ok) {
-      
-      window.location.href = "http://127.0.0.1:5500/front/html/cart.html";
-    } else {
-      
-      console.error(`Error: ${response.status} ${response.statusText}`);
-    }
+    // Redirect to the cart page
+    window.location.href = "http://127.0.0.1:5500/front/html/cart.html";
   });
-
-  */
   
 })(); 
-
-
-
 
 async function getProducts() {
 
