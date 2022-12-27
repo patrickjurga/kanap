@@ -1,40 +1,96 @@
-let params = new URL(document.location).searchParams;
-let id = params.get("id");
+const params = new URL(document.location).searchParams;
+const id = params.get("id");
+
+const url = `http://localhost:3000/api/products/${id}`;
+
+const imgTarget = document.querySelector(".item__img");
+const titleTarget = document.getElementById("title");
+const priceTarget = document.getElementById("price");
+const descriptionTarget = document.getElementById("description");
+const colorsTarget = document.getElementById("colors");
+const addToCartButton = document.getElementById("addToCart");
 
 
 
-let product = function () {
+(async function() {
 
-fetch('http://localhost:3000/api/products')
-  .then(response => response.json())
-  .then(data => {
-    // pour chaque item dans le data
-    data.forEach(item => {
+  const getKanap = await getProducts();
 
-        //si l'id du lien correspond a l'id du produit
-        if (id == item._id) {
+  let image = document.createElement("img");
+  image.src = `${getKanap.imageUrl}`;
+  image.alt = `${getKanap.altTxt}`;
 
-        document.querySelector(".item__img").innerHTML = `<img src="${item.imageUrl}" alt="${item.altTxt}"/>`;
+  imgTarget.appendChild(image);
+  titleTarget.innerText = getKanap.name;
+  priceTarget.innerText = getKanap.price;
+  descriptionTarget.innerText = getKanap.description;
 
-        document.getElementById("title").innerHTML = `${item.name}`;
+  getKanap.colors.forEach(color => {
 
-        document.getElementById("price").innerHTML = `${item.price}`;
-        
-        document.getElementById("description").innerHTML = `${item.description}`;
+    let option = document.createElement("option");
+    option.value = option.innerText = `${color}`;
 
-        // pour chaque couleurs dans le tableau colors on affiche la couleur dans le html
-        item.colors.forEach(color => {
+    colorsTarget.appendChild(option);
 
-          document.getElementById("colors").innerHTML += `<option value="${color}">${color}</option>`;
-          
-        });
+  }); 
+  
+  /*
+  addToCartButton.addEventListener("click", async function() {
 
-      }       
+    const selectedColor = document.querySelector("#colors option:checked").value;
+
+    const data = {
+      name: getKanap.name,
+      price: getKanap.price,
+      imageUrl: getKanap.imageUrl,
+      altTxt: getKanap.altTxt,
+      color: selectedColor
+
+    };
+
+    const response = await fetch("http://127.0.0.1:5500/front/html/cart.html", {
+
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Accept": "application/json", 
+        "Content-Type": "application/json"
+      }
 
     });
-  })
+
+    if (response.ok) {
+      
+      window.location.href = "http://127.0.0.1:5500/front/html/cart.html";
+    } else {
+      
+      console.error(`Error: ${response.status} ${response.statusText}`);
+    }
+  });
+
+  */
+  
+})(); 
+
+
+
+
+async function getProducts() {
+
+  try {
+    const response = await fetch(url);
+    return await response.json();
+  }
+
+  catch(error) {
+    console.warn(`${error.message}: ${url}`);
+    return [];
+  }
 
 }
 
-// appel de la fonction
-product();
+
+
+
+
+

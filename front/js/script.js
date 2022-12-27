@@ -1,4 +1,4 @@
-let cards = function () {
+/* let cards = function () {
     
   // récupération back-end des produits
   fetch('http://localhost:3000/api/products')
@@ -32,6 +32,64 @@ let cards = function () {
 }
 
 // appel de la fonction
-cards();
+cards(); */
+
+const url = "http://localhost:3000/api/products";
+const target = document.getElementById("items");
+
+(async function() {
+
+  const kanaps = await getProducts();
+
+  kanaps.forEach(kanap => {
+    creatKanap(kanap);
+  });
+
+})();
+
+
+async function getProducts() {
+
+  try {
+    const response = await fetch(url);
+    return await response.json();
+  }
+
+  catch(error) {
+    console.warn(`${error.message}: ${url}`);
+    return [];
+  }
+
+}
+
+async function creatKanap(item) {
+
+  let link = document.createElement("a");
+  link.href = `product.html?id=${item._id}`;
+  
+  let article = document.createElement("article");
+
+  let image = document.createElement("img");
+  image.src = `${item.imageUrl}`;
+  image.alt = `${item.altTxt}`;
+
+  let titre3 = document.createElement("h3");
+  titre3.classList.add("productName");
+  titre3.innerText= item.name;
+
+  let paragraphe = document.createElement("p");
+  paragraphe.classList.add("productDescription");
+  paragraphe.innerText= item.description;
+
+  target.appendChild(link);
+  link.appendChild(article);
+  article.appendChild(image);
+  article.appendChild(titre3);
+  article.appendChild(paragraphe);
+
+}
+
+
+
 
 
