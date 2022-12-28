@@ -62,7 +62,7 @@ async function getProducts() {
 
 }
 
-async function creatKanap(item) {
+function creatKanap(item) {
 
   let link = document.createElement("a");
   link.href = `product.html?id=${item._id}`;
