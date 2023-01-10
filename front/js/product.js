@@ -10,16 +10,31 @@ const descriptionTarget = document.getElementById("description");
 const colorsTarget = document.getElementById("colors");
 const addToCartButton = document.getElementById('addToCart');
 
+
+/**
+ * An immediately invoked async function
+ *
+ * Fetches a list of products from a remote API, displays a single product on the page and selects a value from the product object
+ *
+ * @return {Promise} Resolves once all actions inside the function have been completed
+ */
 (async function() {
 
+    // Declare a variable 'item' and assign it the value returned by the function 'getProducts'
     const item = await getProducts();
 
+    // Call the function 'showItem' and pass in the 'item' variable as an argument
     showItem(item);
 
-    selectValue(item)
+    // Call the function 'selectValue' and pass in the 'item' variable as an argument
+    selectValue(item);
 
 })();
 
+/**
+* Display selected item on the page
+* @param {object} item - the selected item
+*/
 function showItem(item) {
   
     let image = document.createElement("img");
@@ -40,6 +55,12 @@ function showItem(item) {
 
 }
 
+/**
+ * Select color and quantity values, display error message if no value is selected
+ *
+ * @param {object} item - the selected item
+ *
+ */
 function selectValue(item) {
 
     addToCartButton.addEventListener("click", () => {
@@ -71,6 +92,11 @@ function selectValue(item) {
 
 }
 
+
+/**
+* Save the selected item to the cart using Local Storage
+* @param {object} item - the selected item
+*/
 function saveItem(item) {
 
     const selectedColor = document.getElementById("colors").value;
@@ -84,6 +110,11 @@ function saveItem(item) {
 
 }
 
+
+/**
+ * Retrieve the cart content using Local Storage
+ * @return {string} cart - cart content
+ */
 function getCart() {
 
     return localStorage.getItem("cart");
@@ -91,6 +122,11 @@ function getCart() {
 
 }
 
+
+/**
+* Add an item to the cart using Local Storage
+* @param {object} item - the item to add
+*/
   function addToCart(item) {
 
     let cart = getCart();
@@ -115,6 +151,12 @@ function getCart() {
     console.log(cart);
 }
 
+
+/**
+* Makes an API call to get products
+* @param {string} url - the API url to get products
+* @return {Promise<Array>} - a promise that resolves with an array of product objects
+*/
 async function getProducts() {
 
     try {

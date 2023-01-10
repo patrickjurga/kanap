@@ -1,228 +1,261 @@
-const cart = getCart(); // Récupère l'objet cart du localStorage
-const items = JSON.parse(cart); // Parse l'objet cart en objet JavaScript
-
-const url = "http://localhost:3000/api/products";
+let cart = [];
 
 const target = document.getElementById("cart__items");
-
 const totalPrice = document.getElementById('totalPrice');
 
 
+/**
+ * Initializes the cart by fetching data from local storage, displaying it on the page and checking the form
+ */
+(function(){
 
-(async function() {
+    // Get Cart
+    cart = getCart();
 
-    const kanaps = await getProducts();
+    // Show Cart
+    showCart(cart);
 
-    items.forEach(item => {
-      showKanap(item, kanaps);
-    });
+    // Show total price of all products in the cart
+    showTotalPrice(cart)
 
-    console.log(items);
-
-    deleteKanap();
-
-    changeQty()
-
-    showPrice(items, kanaps);
-
+     
     checkForm()
 
 })();
 
-
-function getCart() {
-    return localStorage.getItem("cart");
-  }
-
-async function deleteKanap() {
-
-    const kanaps = await getProducts();
-
-    const deleteItemButton = document.querySelectorAll('.deleteItem');
-    // Ajoutez un écouteur d'événement de clic sur tous les boutons deleteItem
-    deleteItemButton.forEach(button => {
-        button.addEventListener('click', event => {
-        // Récupérez l'élément de l'article du panier
-        const cartItem = event.target.closest('.cart__item');
-
-        // Récupérez l'ID du produit à partir de l'attribut data-id de l'élément de l'article du panier
-        const productId = cartItem.getAttribute('data-id');
-
-        const productColor = cartItem.getAttribute('data-color');
-        console.log(productId);
-        console.log(productColor);
-
-        // Trouvez l'index de l'élément dans le tableau items
-        let itemIndex = items.findIndex(item => item.id === productId && item.color === productColor);
-
-        console.log(itemIndex);
-
-        // Supprimez l'élément du tableau items
-            items.splice(itemIndex, 1);
-                
-        // Mettez à jour le localStorage
-        localStorage.setItem('cart', JSON.stringify(items));
-
-        // Supprimez l'élément de l'article du panier de la page
-        cartItem.remove();
-
-        showPrice(items, kanaps);
-            
-        });
-        
-
-    });
-
+/**
+ * Get Cart from Local Storage
+ *
+ * @returns {Array} cart - An array of products 
+ */
+function getCart() 
+{
+    let cart = localStorage.getItem("cart");
+    return JSON.parse(cart);
 }
 
-async function changeQty() {
 
-    const kanaps = await getProducts();
-
-    const qtyInput = document.querySelectorAll('.itemQuantity');
-
-    qtyInput.forEach(button => {
-        button.addEventListener('click', event => {
-
-            const cartItem = event.target.closest('.cart__item');
-
-            // Récupérez l'ID du produit à partir de l'attribut data-id de l'élément de l'article du panier
-            const productId = cartItem.getAttribute('data-id');
-
-            const productColor = cartItem.getAttribute('data-color');
-            console.log(productId);
-            console.log(productColor);
-
-            const updatedQuantity = event.target.value;
-            const item = items.find(i => i.id === productId && i.color === productColor);
-            item.qty = updatedQuantity;
-
-            localStorage.setItem('cart', JSON.stringify(items));
-
-            showPrice(items, kanaps);
-
-        })
-
-    })
-
-}
-
-function showKanap(item, kanaps) {
-
-  
-    // Trouvez l'objet produit correspondant à l'item actuel dans le tableau kanaps
-    const product = kanaps.find(kanap => kanap._id === item.id);
-  
-    // Créez l'élément racine pour l'article du panier
-    const cartItem = document.createElement('article');
-    cartItem.classList.add('cart__item');
-    cartItem.setAttribute('data-id', item.id);
-    cartItem.setAttribute('data-color', item.color);
-  
-    // Créez l'élément de l'image
-    const imgElement = document.createElement('div');
-    imgElement.classList.add('cart__item__img');
-    const img = document.createElement('img');
-    img.src = product.imageUrl;
-    img.alt = `Photographie du produit ${product.name}`;
-    imgElement.appendChild(img);
-  
-    // Créez l'élément de contenu
-    const contentElement = document.createElement('div');
-    contentElement.classList.add('cart__item__content');
-  
-    // Créez l'élément de description
-    const descriptionElement = document.createElement('div');
-    descriptionElement.classList.add('cart__item__content__description');
-    const name = document.createElement('h2');
-    name.innerText = product.name;
-    descriptionElement.appendChild(name);
-    const color = document.createElement('p');
-    color.innerText = item.color; // Utilisez la couleur de l'item au lieu de celle du produit
-    descriptionElement.appendChild(color);
-    const price = document.createElement('p');
-    price.innerText = `${product.price} €`;
-    descriptionElement.appendChild(price);
-  
-    // Créez l'élément de paramètres
-    const settingsElement = document.createElement('div');
-    settingsElement.classList.add('cart__item__content__settings');
-  
-    // Créez l'élément de quantité
-    const quantityElement = document.createElement('div');
-    quantityElement.classList.add('cart__item__content__settings__quantity');
-    const quantityLabel = document.createElement('p');
-    quantityLabel.innerText = 'Qté :';
-    quantityElement.appendChild(quantityLabel);
-    const quantityInput = document.createElement('input');
-    quantityInput.type = 'number';
-    quantityInput.classList.add('itemQuantity');
-    quantityInput.name = 'itemQuantity';
-    quantityInput.min = 1;
-    quantityInput.max = 100;
-    quantityInput.value = item.qty; // Utilisez la quantité de l'item au lieu de celle du produit
-    quantityElement.appendChild(quantityInput);
-
-    // Créez l'élément de suppression
-    const deleteElement = document.createElement('div');
-    deleteElement.classList.add('cart__item__content__settings__delete');
-    const deleteButton = document.createElement('p');
-    deleteButton.classList.add('deleteItem');
-    deleteButton.innerText = 'Supprimer';
-    deleteElement.appendChild(deleteButton);
-
-    // Ajoutez les éléments de quantité et de suppression aux paramètres
-    settingsElement.appendChild(quantityElement);
-    settingsElement.appendChild(deleteElement);
-
-    // Ajoutez l'élément de description et de paramètres au contenu
-    contentElement.appendChild(descriptionElement);
-    contentElement.appendChild(settingsElement);
-
-    // Ajoutez l'image et le contenu à l'élément de l'article du panier
-    cartItem.appendChild(imgElement);
-    cartItem.appendChild(contentElement);
-
-    // Ajoutez l'élément de l'article du panier à la cible
-    target.appendChild(cartItem);
-
-
-
-} 
-
-function showPrice(items, kanaps) {
-
-    let sum = 0;
-
-    
-  
-    items.forEach(item => {
-      const product = kanaps.find(kanap => kanap._id === item.id);
-        sum += product.price * item.qty;
-    });
-  
-    console.log(sum);
-
-    totalPrice.innerText = sum;
-
-  }
-
-async function getProducts() {
-
+/**
+ * Get Product from API call
+ *
+ * @param {string} url - The URL of the API endpoint to make the request to.
+ * @returns {Promise<Array>} - A promise that resolves with an array of product objects.
+ */
+async function getProduct(url) 
+{
     try {
         const response = await fetch(url);
         return await response.json();
     } 
-  
     catch(error) {
         console.warn(`${error.message}: ${url}`);
         return [];
     }
+}
+
+/**
+ * show cart items in the webpage
+ *
+ * @param {Array} cart - array of product in the cart
+ * 
+ */
+function showCart(cart)
+{
+    target.innerHTML = "";
+    
+    cart.forEach(async (product) => {
+
+        const url = `http://localhost:3000/api/products/${product.id}`;
+        const _product = await getProduct(url);
+
+
+        // Quantity
+        // --
+
+        let quantityLabel = document.createElement('p');
+            quantityLabel.innerText = 'Qté :';
+
+        let quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.classList.add('itemQuantity');
+            quantityInput.name = 'itemQuantity';
+            quantityInput.min = 1;
+            quantityInput.max = 100;
+            quantityInput.value = product.qty;
+
+            quantityInput.addEventListener('click', changeQty );
+
+        let quantityElement = document.createElement('div');
+            quantityElement.classList.add('cart__item__content__settings__quantity');
+            quantityElement.appendChild(quantityLabel);
+            quantityElement.appendChild(quantityInput);
+
+
+        // Delete
+        // --
+
+        let deleteButton = document.createElement('p');
+            deleteButton.classList.add('deleteItem');
+            deleteButton.innerText = 'Supprimer';
+
+
+        let deleteElement = document.createElement('div');
+            deleteElement.classList.add('cart__item__content__settings__delete');
+            deleteElement.appendChild(deleteButton);
+
+            deleteElement.addEventListener('click', deleteItem );
+
+
+        // Settings
+        // --
+
+        let settingsElement = document.createElement('div');
+            settingsElement.classList.add('cart__item__content__settings');
+            settingsElement.appendChild(quantityElement);
+            settingsElement.appendChild(deleteElement);
+
+
+        // Content
+        // --
+
+        let name = document.createElement('h2');
+            name.innerText = _product.name;
+
+        let color = document.createElement('p');
+            color.innerText = product.color;
+
+        let price = document.createElement('p');
+            price.innerText = `${_product.price} €`;
+
+
+        // Créez l'élément de description
+        let descriptionElement = document.createElement('div');
+            descriptionElement.classList.add('cart__item__content__description');
+            descriptionElement.appendChild(name);
+            descriptionElement.appendChild(color);
+            descriptionElement.appendChild(price);
+
+        let contentElement = document.createElement('div');
+            contentElement.classList.add('cart__item__content');
+            contentElement.appendChild(descriptionElement);
+            contentElement.appendChild(settingsElement);
+
+
+        // Image
+        // -- 
+
+        let img = document.createElement('img');
+            img.src = _product.imageUrl;
+            img.alt = `Photographie du produit ${product.name}`;
+
+        let imgElement = document.createElement('div');
+            imgElement.classList.add('cart__item__img');
+            imgElement.appendChild(img);
+            
+
+        // Article
+        // --
+
+        let article = document.createElement('article');
+            article.classList.add('cart__item');
+            article.setAttribute('data-id', product.id);
+            article.setAttribute('data-color', product.color);
+            article.appendChild(imgElement);
+            article.appendChild(contentElement);
+
+        // Ajoutez l'élément de l'article du panier à la cible
+        target.appendChild(article);
+
+        showTotalPrice(cart)
+        
+    });
+
+    
 
 }
 
+/**
+ * Removes an item from the cart array and updates the local storage
+ *
+ * @param {Event} event - the event triggered when clicking on the delete button
+ */
+function deleteItem(event)
+{
+    // Retrieve product data
+    const cartItem = event.target.closest('.cart__item');
+    const id = cartItem.getAttribute('data-id');
+    const color = cartItem.getAttribute('data-color');
 
+    // Retrieve the product in cart   
+    const index = cart.findIndex(item => item.id === id && item.color === color);
 
+    cart.splice(index, 1);
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    showTotalPrice(cart)
+
+    showCart( getCart() );
+    
+}
+
+/**
+ * Update quantity of item in the cart array and updates the local storage
+ *
+ * @param {Event} event - the event triggered when changing the quantity of item
+ */
+function changeQty(event) {
+
+    // Retrieve product data
+    const cartItem = event.target.closest('.cart__item');
+    const id = cartItem.getAttribute('data-id');
+    const color = cartItem.getAttribute('data-color');
+
+    const updatedQuantity = event.target.value;
+    const index = cart.find(i => i.id === id && i.color === color);
+    index.qty = updatedQuantity;
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    showTotalPrice(cart)
+
+} 
+
+/**
+ * Show total price of all products in the cart
+ *
+ * @param {Array} cart - array of product in the cart
+ * 
+ */
+function showTotalPrice(cart) {
+
+    let sum = 0;
+  
+    if (cart.length === 0) {
+
+      totalPrice.innerText = sum;
+
+    } else {
+
+      cart.forEach(async (product) => {
+
+        const url = `http://localhost:3000/api/products/${product.id}`;
+        const _product = await getProduct(url);
+  
+        sum += _product.price * product.qty;
+  
+        totalPrice.innerText = sum;
+
+      });
+
+    }
+
+  }
+
+/**
+ * Checking the form
+ *
+ */
 function checkForm() {
 
     const firstName = document.getElementById('firstName');
@@ -295,7 +328,7 @@ function checkForm() {
 
 
     
-    let getId = items.map(product => product.id);
+    let getId = cart.map(product => product.id);
 
     document.querySelector(".cart__order__form__submit").addEventListener("click", function(e) {
 
@@ -347,6 +380,32 @@ function checkForm() {
     })
 
 }
+
+  
+
+  
+
+
+
+
+
+// 1. get cart (localstorage)
+
+// 2. Show cart
+
+    // Init event 
+        // - qty
+            // Check cart
+            // Update qty
+            // Update localstorage
+            // Update view
+
+        // - deletion
+            // Check cart
+            // Update qty
+            // Update localstorage
+            // Update view
+
 
 
 
