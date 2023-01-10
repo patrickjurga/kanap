@@ -80,11 +80,13 @@ function selectValue(item) {
 
                 alert("Veuillez choisir le nombre de produit que vous voulez");
 
-              } else {
+            } else {
 
-                  saveItem(item)
-
-              }
+                saveItem(item)
+                 
+                alert("Produit ajouté au panier");
+                  
+            }
 
         }
         
